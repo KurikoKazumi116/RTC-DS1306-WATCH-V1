@@ -1,0 +1,129 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <RTClib.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET -1
+
+int button = 3;
+int led = 2;
+int ledState = 0;
+int lastButtonState = HIGH;
+String val;
+int displayhour;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+RTC_DS3231 rtc;
+char daysOfTheWeek [7][4] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
+
+void setup() {
+  
+  pinMode(button, INPUT_PULLUP);
+  pinMode(led,OUTPUT);
+  Serial.begin(9600);
+
+  // Initialize OLED
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 initialization failed"));
+    while (1);
+  }
+
+  // Initialize RTC
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    display.print("RTC not found!");
+    display.display();
+    while (1);
+  }
+
+  // If RTC isn't running, set it to compile time
+  if (!rtc.begin()) {
+    Serial.println("RTC not running, setting the time!");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+  display.setTextSize(3);
+  display.setCursor(20,20);
+  display.print("WELCOME K116");
+  display.display();
+  delay(2000);
+
+
+  display.clearDisplay();
+}
+
+void loop() {
+  float temp  = rtc.getTemperature();
+  float tempf = (temp * 1.8) +32;
+ 
+  DateTime now = rtc.now();
+
+  display.clearDisplay();
+
+  // Date line
+  display.setTextSize(1.5);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10, 0);
+  display.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  display.print(" <<< ");
+  display.print(now.month());
+  display.print('/');
+  display.print(now.day());
+  display.print('/');
+  display.println(now.year());
+
+  if(now.hour()==0){
+    displayhour = now.hour()==12;
+    val = "PM";
+  }
+  if(now.hour()<12){
+    displayhour = now.hour();
+    val = "AM";
+  }
+  if(now.hour()>12){
+    displayhour = now.hour() -12;
+    val = "PM";
+  }
+  // Time line
+  display.setTextSize(2);
+  display.setCursor(15, 20);
+  if (displayhour< 10) display.print('0');
+  display.print(displayhour);
+  display.print(':');
+  if (now.minute() < 10) display.print('0');
+  display.print(now.minute());
+  display.print(':');
+  display.setCursor(88,25);
+  display.setTextSize(1.5);
+  if (now.second() <10) display.print('0');
+  display.print(now.second());
+  display.print("");
+  
+  display.print(val);
+  
+  display.setCursor(10,40);
+  
+  display.print(tempf);
+  display.print("F");
+  display.setCursor(7,55);
+  if (val == "AM"){
+    display.print("Good Morning Gabby");
+  }
+    
+  if(val == "PM"  && displayhour <= 5){
+    display.print("Good Afternoon Gabby");
+
+  }
+  else{
+    display.print("Good Evening Gabby");
+  }
+
+  display.display();
+  
+
+  delay(1000);
+}
