@@ -1,7 +1,7 @@
 # RTC-DS1306-WATCH-V1
 V1 OF MY RTC-DS1306 WATCH
 
-Hello, this is my first ever planned out physical project (BESIDES THE CLOCK), I made this to be as simple as possible to make sure I didn't short or mess anything up. But as this is V1 I'll be updating this project.
+Hello, this is my first ever planned out physical project (BESIDES THE CLOCK), I made this to be as simple as possible to make sure I didn't short or mess anything up. But as this is the VERSION 1 series, I'll be updating this project.
 
 
 COMPONENTS USED
